@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Cinzel } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
+import { SITE_URL } from "./siteConfig";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -8,10 +10,17 @@ const cinzel = Cinzel({
   weight: ["400", "700"],
 });
 
+const cooperHewitt = localFont({
+  src: "../public/CooperHewitt-Medium.ttf",
+  variable: "--font-cooper-hewitt",
+  weight: "500",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "MCU Doomsday Clock | Avengers: Doomsday Countdown",
   description:
-    "Countdown to Avengers: Doomsday releasing December 18, 2026. Experience the cinematic countdown with immersive visuals and ambient effects.",
+    "A personalized countdown for Naveen Sunilkumar's last day at Freshworks on January 6, 2027.",
   keywords: [
     "Avengers Doomsday",
     "MCU",
@@ -44,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     creator: "@kmaar44",
   },
-  metadataBase: new URL("https://mcu-doomsday-clock.vercel.app"),
+  metadataBase: new URL(SITE_URL),
 };
 
 export default function RootLayout({
@@ -54,7 +63,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cinzel.variable}>
+      <body className={`${cinzel.variable} ${cooperHewitt.variable}`}>
         {children}
       </body>
     </html>

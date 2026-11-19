@@ -27,11 +27,15 @@ export default function WillReturn() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [enabled, setEnabled] = useState(true);
+  const [showReturnMessage, setShowReturnMessage] = useState(false);
+  const [isFlickering, setIsFlickering] = useState(false);
   const lastTimeRef = useRef<number>(0);
   const cycleStartRef = useRef<number>(0);
   const startedRef = useRef(false);
 
-  const name = searchParams.get("name") || "KMaar";
+  const name = searchParams.get("name") || "Naveen Sunilkumar";
+  const returnMessage = "Naveen will return to the fourth floor, A Block";
+  const lastDayMessage = `${name}'s Last Day at Freshworks`;
 
   useEffect(() => {
     const unsubscribe = subscribeWillReturn(setEnabled);
@@ -63,15 +67,26 @@ export default function WillReturn() {
 
       if (elapsed < 500) {
         setStep(0);
+        setShowReturnMessage(false);
+        setIsFlickering(false);
       } else if (elapsed < 3000) {
         setStep(1);
       } else if (elapsed < 5000) {
         setStep(2);
-      } else if (elapsed < 9000) {
+      } else if (elapsed < 6500) {
         setStep(3);
+      } else if (elapsed < 7500) {
+        setStep(3);
+        setIsFlickering(true);
+      } else if (elapsed < 10500) {
+        setStep(3);
+        setIsFlickering(false);
+        setShowReturnMessage(true);
       } else {
         cycleStartRef.current = timestamp;
         setStep(0);
+        setShowReturnMessage(false);
+        setIsFlickering(false);
       }
 
       animationId = requestAnimationFrame(animate);
@@ -86,15 +101,26 @@ export default function WillReturn() {
 
   return (
     <div className="absolute top-[70%] left-1/2 -translate-x-1/2 z-[100] pointer-events-none text-center whitespace-nowrap">
-      <p className="font-['Cooper_Hewitt'] text-[1.5vmin] font-medium tracking-[0.2em] text-white/80 drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">
-        <span className={`inline transition-opacity duration-1000 ${step >= 1 ? "opacity-100" : "opacity-0"}`}>
-          {name}
-        </span>
-        <span className={`inline transition-opacity duration-1000 ${step >= 2 ? "opacity-100" : "opacity-0"}`}>
-          {" "}Will Return In{" "}
-        </span>
-        <span className={`inline transition-opacity duration-1000 ${step >= 3 ? "opacity-100" : "opacity-0"}`}>
-          Avengers: Doomsday
+      <p className="will-return-text text-[1.5vmin] font-medium tracking-[0.2em] text-white/80 drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">
+        <span
+          className={isFlickering ? "text-flicker inline-block relative" : "inline"}
+          data-text={showReturnMessage ? returnMessage : lastDayMessage}
+        >
+          {showReturnMessage ? (
+            returnMessage
+          ) : (
+            <>
+              <span className={`inline transition-opacity duration-1000 ${step >= 1 ? "opacity-100" : "opacity-0"}`}>
+                {name}
+              </span>
+              <span className={`inline transition-opacity duration-1000 ${step >= 2 ? "opacity-100" : "opacity-0"}`}>
+                {"'s Last Day "}
+              </span>
+              <span className={`inline transition-opacity duration-1000 ${step >= 3 ? "opacity-100" : "opacity-0"}`}>
+                at Freshworks
+              </span>
+            </>
+          )}
         </span>
       </p>
     </div>

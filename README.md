@@ -1,6 +1,6 @@
 # MCU Doomsday Clock
 
-An immersive countdown experience for Avengers: Doomsday, releasing December 18, 2026.
+A personalized countdown for Naveen Sunilkumar's last day at the company on January 6, 2027.
 
 ## Features
 
@@ -8,16 +8,18 @@ An immersive countdown experience for Avengers: Doomsday, releasing December 18,
 - Mouse-reactive lighting (specular highlights, shadows, bloom)
 - Rotating god rays and fog effects
 - Floating particle system with adjustable count for performance
-- Background music with track switching (theme song / tick-tock sound / mute)
-- "X Will Return" animation with customizable name via URL parameter
+- Background music with an automatic clock-tick transition and manual audio controls
+- Last-day message with a signal-glitch transition and customizable name via URL parameter
 - Utility bar with audio controls and particle settings
 - Fully responsive design
 
 ## Demo
 
-Visit: [mcu-doomsday-clock.vercel.app](https://mcu-doomsday-clock.vercel.app)
+Visit: [girirajravichandran.github.io/mcu-doomsday-clock](https://girirajravichandran.github.io/mcu-doomsday-clock/)
 
-Customize the name: `https://mcu-doomsday-clock.vercel.app?name=Tony%20Stark`
+Customize the name: `https://girirajravichandran.github.io/mcu-doomsday-clock/?name=Tony%20Stark`
+
+GitHub Pages deployment is handled by the workflow in `.github/workflows/deploy-pages.yml`.
 
 ## Tech Stack
 

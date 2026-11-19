@@ -1,10 +1,7 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: 'Cooper Hewitt';
-  src: url('/CooperHewitt-Medium.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
+.will-return-text {
+  font-family: var(--font-cooper-hewitt);
 }
 
 :root {
@@ -112,6 +109,76 @@ html {
 @keyframes textEntry {
   0% { opacity: 0; filter: blur(1vmin); }
   100% { opacity: 1; filter: blur(0); }
+}
+
+.text-flicker {
+  position: relative;
+  animation: textFlicker 1s steps(1, end);
+}
+
+.text-flicker::before,
+.text-flicker::after {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  content: attr(data-text);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.text-flicker::before {
+  color: #ff285a;
+  animation: signalSlice 1s steps(1, end);
+}
+
+.text-flicker::after {
+  color: #32eaff;
+  animation: signalSlice 1s steps(1, end) reverse;
+}
+
+@keyframes textFlicker {
+  0%, 100% {
+    opacity: 1;
+    filter: none;
+    text-shadow: none;
+    transform: translateX(0) skewX(0);
+  }
+  12%, 45%, 74% {
+    opacity: 0.18;
+    filter: blur(0.05em) contrast(2);
+    text-shadow: -0.08em 0 #ff285a, 0.08em 0 #32eaff;
+    transform: translateX(-0.1em) skewX(-8deg);
+  }
+  24%, 58%, 86% {
+    opacity: 1;
+    text-shadow: 0.08em 0 #ff285a, -0.08em 0 #32eaff;
+    transform: translateX(0.1em) skewX(5deg);
+  }
+}
+
+@keyframes signalSlice {
+  0%, 100% {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+    transform: translateX(0);
+  }
+  12%, 45%, 74% {
+    opacity: 0.85;
+    clip-path: inset(8% 0 68% 0);
+    transform: translateX(-0.14em);
+  }
+  24%, 58%, 86% {
+    opacity: 0.75;
+    clip-path: inset(58% 0 18% 0);
+    transform: translateX(0.12em);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-flicker {
+    animation: none;
+  }
 }
 
 @keyframes pulseBurst {

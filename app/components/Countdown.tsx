@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState} from "react";
+import { publicAsset } from "../siteConfig";
 
 interface TimeLeft {
   months: number;
@@ -10,7 +11,7 @@ interface TimeLeft {
   seconds: number;
 }
 
-const TARGET_DATE = new Date("December 18, 2026 00:00:00");
+const TARGET_DATE = new Date("January 6, 2027 00:00:00");
 
 function calculateTimeLeft(): TimeLeft | null {
   const now = new Date();
@@ -41,13 +42,15 @@ function formatTwoDigits(num: number): string {
 
 // Audio tracks
 export const AUDIO_TRACKS = {
-  THEME: "/avengersdoomsday.mp3",
-  TICK: "/Doomsday clock sound effect.mp3",
+  THEME: publicAsset("avengersdoomsday.mp3"),
+  TICK: publicAsset("Doomsday clock sound effect.mp3"),
 };
+const TICK_TAIL_SILENCE_SECONDS = 1.25;
 
 // Export audio control functions
 let globalAudio: HTMLAudioElement | null = null;
 let currentTrack: string = AUDIO_TRACKS.THEME;
+const audioTrackListeners = new Set<() => void>();
 
 export function getAudio() {
   return globalAudio;
@@ -55,6 +58,13 @@ export function getAudio() {
 
 export function getCurrentTrack() {
   return currentTrack;
+}
+
+export function subscribeToAudioTrack(listener: () => void) {
+  audioTrackListeners.add(listener);
+  return () => {
+    audioTrackListeners.delete(listener);
+  };
 }
 
 export function switchTrack(trackPath: string) {
@@ -65,6 +75,7 @@ export function switchTrack(trackPath: string) {
   
   globalAudio.pause();
   globalAudio.src = trackPath;
+  globalAudio.loop = trackPath !== AUDIO_TRACKS.TICK;
   currentTrack = trackPath;
   globalAudio.load();
   
@@ -72,6 +83,7 @@ export function switchTrack(trackPath: string) {
     globalAudio.play().catch(() => {});
   }
   globalAudio.muted = wasMuted;
+  audioTrackListeners.forEach((listener) => listener());
 }
 
 export default function Countdown() {
@@ -86,10 +98,23 @@ export default function Countdown() {
   });
 
   useEffect(() => {
-    globalAudio = new Audio("/avengersdoomsday.mp3");
+    globalAudio = new Audio(AUDIO_TRACKS.THEME);
     globalAudio.loop = true;
     globalAudio.volume = 0.3;
     globalAudio.preload = "auto";
+
+    const trimTickLoopGap = () => {
+      if (
+        globalAudio &&
+        currentTrack === AUDIO_TRACKS.TICK &&
+        Number.isFinite(globalAudio.duration) &&
+        globalAudio.currentTime >= globalAudio.duration - TICK_TAIL_SILENCE_SECONDS
+      ) {
+        globalAudio.currentTime = 0;
+      }
+    };
+
+    globalAudio.addEventListener("timeupdate", trimTickLoopGap);
 
     let audioUnlocked = false;
 
@@ -125,6 +150,8 @@ export default function Countdown() {
     document.addEventListener("keydown", enableAudio);
     document.addEventListener("scroll", enableAudio);
 
+    tryPlayAudio();
+
     // Wait for audio to be ready
     globalAudio.addEventListener("canplaythrough", () => {
       // Audio is loaded and ready
@@ -152,7 +179,7 @@ export default function Countdown() {
             minutes: formatTwoDigits(initialTime.minutes),
             seconds: formatTwoDigits(initialTime.seconds),
           });
-          // Try to play when countdown starts
+          switchTrack(AUDIO_TRACKS.TICK);
           tryPlayAudio();
         } else {
           setDisplayValues({
@@ -169,6 +196,7 @@ export default function Countdown() {
     return () => {
       clearTimeout(startTimer);
       globalAudio?.pause();
+      globalAudio?.removeEventListener("timeupdate", trimTickLoopGap);
       globalAudio = null;
       document.removeEventListener("click", enableAudio);
       document.removeEventListener("touchstart", enableAudio);
@@ -207,7 +235,7 @@ export default function Countdown() {
           opacity: showDate ? 1 : 0 
         }}
       >
-        DECEMBER 18, 2026
+        JANUARY 06, 2027
       </div>
 
       {/* Countdown wrapper */}

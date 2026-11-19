@@ -1,7 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { getAudio, switchTrack, AUDIO_TRACKS, getCurrentTrack } from "./Countdown";
+import { useEffect, useState } from "react";
+import {
+  getAudio,
+  switchTrack,
+  AUDIO_TRACKS,
+  getCurrentTrack,
+  subscribeToAudioTrack,
+} from "./Countdown";
 import { setWillReturnEnabled } from "./WillReturn";
 import { getParticleCount, setParticleCount } from "./ParticleCanvas";
 
@@ -152,6 +158,19 @@ export default function UtilityBar() {
   const [textEnabled, setTextEnabled] = useState(true);
   const [showParticlePopup, setShowParticlePopup] = useState(false);
   const [particleInput, setParticleInput] = useState(getParticleCount().toString());
+
+  useEffect(() => {
+    return subscribeToAudioTrack(() => {
+      const audio = getAudio();
+      setAudioState(
+        audio?.muted
+          ? 2
+          : getCurrentTrack() === AUDIO_TRACKS.TICK
+            ? 1
+            : 0,
+      );
+    });
+  }, []);
 
   const cycleAudio = () => {
     const audio = getAudio();
