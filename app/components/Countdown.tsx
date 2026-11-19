@@ -116,7 +116,7 @@ export function switchTrack(trackPath: string) {
   globalAudio.pause();
   globalAudio.src = trackPath;
   globalAudio.loop = trackPath !== AUDIO_TRACKS.TICK;
-  globalAudio.volume = trackPath === AUDIO_TRACKS.TICK ? 1 : 0.3;
+  globalAudio.volume = trackPath === AUDIO_TRACKS.TICK ? 1 : 0.8;
   currentTrack = trackPath;
   globalAudio.load();
   
@@ -141,7 +141,7 @@ export default function Countdown() {
   useEffect(() => {
     globalAudio = new Audio(AUDIO_TRACKS.THEME);
     globalAudio.loop = true;
-    globalAudio.volume = 0.3;
+    globalAudio.volume = 0.8;
     globalAudio.preload = "auto";
     publishAudioPlaybackStatus("blocked");
 
