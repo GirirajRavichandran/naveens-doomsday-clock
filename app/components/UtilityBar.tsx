@@ -292,7 +292,7 @@ export default function UtilityBar() {
         <UtilityButton
           icon={<GitHubIcon />}
           label="GitHub"
-          href="https://github.com/SudoKMaar/mcu-doomsday-clock"
+          href="https://github.com/GirirajRavichandran/naveens-doomsday-clock"
         />
         <UtilityButton
           icon={<LinkedInIcon />}

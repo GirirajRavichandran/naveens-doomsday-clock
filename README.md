@@ -15,9 +15,9 @@ A personalized countdown for Naveen Sunilkumar's last day at the company on Janu
 
 ## Demo
 
-Visit: [girirajravichandran.github.io/mcu-doomsday-clock](https://girirajravichandran.github.io/mcu-doomsday-clock/)
+Visit: [girirajravichandran.github.io/naveens-doomsday-clock](https://girirajravichandran.github.io/naveens-doomsday-clock/)
 
-Customize the name: `https://girirajravichandran.github.io/mcu-doomsday-clock/?name=Tony%20Stark`
+Customize the name: `https://girirajravichandran.github.io/naveens-doomsday-clock/?name=Tony%20Stark`
 
 GitHub Pages deployment is handled by the workflow in `.github/workflows/deploy-pages.yml`.
 

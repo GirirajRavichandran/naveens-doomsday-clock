@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const isGitHubActions = process.env.GITHUB_ACTIONS === "true";
-const basePath = isGitHubActions ? "/mcu-doomsday-clock" : "";
+const basePath = isGitHubActions ? "/naveens-doomsday-clock" : "";
 const siteUrl = isGitHubActions
-  ? "https://girirajravichandran.github.io/mcu-doomsday-clock"
+  ? "https://girirajravichandran.github.io/naveens-doomsday-clock"
   : "https://mcu-doomsday-clock.vercel.app";
 
 const nextConfig: NextConfig = {
