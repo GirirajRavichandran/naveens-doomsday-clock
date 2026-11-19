@@ -7,6 +7,10 @@ import {
   AUDIO_TRACKS,
   getCurrentTrack,
   subscribeToAudioTrack,
+  getAudioPlaybackStatus,
+  subscribeToAudioPlayback,
+  playAudio,
+  type AudioPlaybackStatus,
 } from "./Countdown";
 import { setWillReturnEnabled } from "./WillReturn";
 import { getParticleCount, setParticleCount } from "./ParticleCanvas";
@@ -155,6 +159,8 @@ const ParticleIcon = () => (
 export default function UtilityBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [audioState, setAudioState] = useState<AudioState>(0); // 0 = Track 1, 1 = Track 2, 2 = Muted
+  const [audioPlaybackStatus, setAudioPlaybackStatus] =
+    useState<AudioPlaybackStatus>(getAudioPlaybackStatus);
   const [textEnabled, setTextEnabled] = useState(true);
   const [showParticlePopup, setShowParticlePopup] = useState(false);
   const [particleInput, setParticleInput] = useState(getParticleCount().toString());
@@ -172,6 +178,8 @@ export default function UtilityBar() {
     });
   }, []);
 
+  useEffect(() => subscribeToAudioPlayback(setAudioPlaybackStatus), []);
+
   const cycleAudio = () => {
     const audio = getAudio();
     if (!audio) return;
@@ -183,10 +191,12 @@ export default function UtilityBar() {
       case 0: // Track 1 (Theme)
         audio.muted = false;
         switchTrack(AUDIO_TRACKS.THEME);
+        void playAudio();
         break;
       case 1: // Track 2 (Tick tock)
         audio.muted = false;
         switchTrack(AUDIO_TRACKS.TICK);
+        void playAudio();
         break;
       case 2: // Muted
         audio.muted = true;
@@ -208,9 +218,13 @@ export default function UtilityBar() {
   const getAudioLabel = () => {
     switch (audioState) {
       case 0:
-        return "Playing: Theme Song";
+        return audioPlaybackStatus === "playing"
+          ? "Playing: Theme Song"
+          : "Theme Song selected; sound off";
       case 1:
-        return "Playing: Tick Tock";
+        return audioPlaybackStatus === "playing"
+          ? "Playing: Tick Tock"
+          : "Tick Tock selected; sound off";
       case 2:
         return "Muted";
     }
@@ -231,8 +245,28 @@ export default function UtilityBar() {
     setShowParticlePopup(false);
   };
 
+  const enableSound = () => {
+    const audio = getAudio();
+    if (audio) {
+      audio.muted = false;
+      setAudioState(getCurrentTrack() === AUDIO_TRACKS.TICK ? 1 : 0);
+    }
+    void playAudio();
+  };
+
   return (
     <div className="fixed bottom-4 right-4 z-[100] flex flex-col items-end gap-2">
+      {audioPlaybackStatus !== "playing" && (
+        <button
+          onClick={enableSound}
+          aria-label={audioPlaybackStatus === "error" ? "Retry sound" : "Enable sound"}
+          className="fixed bottom-4 left-4 z-[110] flex items-center gap-2 rounded-full border border-white/20 bg-black/70 px-4 py-2 text-xs font-semibold tracking-widest text-white/80 shadow-lg backdrop-blur transition-colors hover:bg-black/90 hover:text-white"
+        >
+          <VolumeOnIcon />
+          <span>{audioPlaybackStatus === "error" ? "RETRY SOUND" : "ENABLE SOUND"}</span>
+        </button>
+      )}
+
       {/* Particle Count Popup */}
       {showParticlePopup && (
         <div className="absolute bottom-0 right-20 bg-black/70 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/10 min-w-[200px]">

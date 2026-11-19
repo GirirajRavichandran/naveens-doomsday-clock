@@ -8,7 +8,7 @@ A personalized countdown for Naveen Sunilkumar's last day at the company on Janu
 - Mouse-reactive lighting (specular highlights, shadows, bloom)
 - Rotating god rays and fog effects
 - Floating particle system with adjustable count for performance
-- Background music with an automatic clock-tick transition and manual audio controls
+- Background music with a visible sound-enable control, an automatic clock-tick transition, and manual audio controls
 - Last-day message with a signal-glitch transition and customizable name via URL parameter
 - Utility bar with audio controls and particle settings
 - Fully responsive design

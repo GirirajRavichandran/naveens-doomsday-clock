@@ -51,6 +51,14 @@ const TICK_TAIL_SILENCE_SECONDS = 1.25;
 let globalAudio: HTMLAudioElement | null = null;
 let currentTrack: string = AUDIO_TRACKS.THEME;
 const audioTrackListeners = new Set<() => void>();
+export type AudioPlaybackStatus = "blocked" | "playing" | "error";
+let audioPlaybackStatus: AudioPlaybackStatus = "blocked";
+const audioPlaybackListeners = new Set<(status: AudioPlaybackStatus) => void>();
+
+function publishAudioPlaybackStatus(status: AudioPlaybackStatus) {
+  audioPlaybackStatus = status;
+  audioPlaybackListeners.forEach((listener) => listener(status));
+}
 
 export function getAudio() {
   return globalAudio;
@@ -67,6 +75,38 @@ export function subscribeToAudioTrack(listener: () => void) {
   };
 }
 
+export function getAudioPlaybackStatus() {
+  return audioPlaybackStatus;
+}
+
+export function subscribeToAudioPlayback(
+  listener: (status: AudioPlaybackStatus) => void,
+) {
+  audioPlaybackListeners.add(listener);
+  listener(audioPlaybackStatus);
+  return () => {
+    audioPlaybackListeners.delete(listener);
+  };
+}
+
+export async function playAudio() {
+  if (!globalAudio) return false;
+
+  try {
+    await globalAudio.play();
+    publishAudioPlaybackStatus("playing");
+    return true;
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "NotAllowedError") {
+      publishAudioPlaybackStatus("blocked");
+    } else {
+      publishAudioPlaybackStatus("error");
+      console.error("Unable to play the selected audio track", error);
+    }
+    return false;
+  }
+}
+
 export function switchTrack(trackPath: string) {
   if (!globalAudio) return;
   
@@ -76,11 +116,12 @@ export function switchTrack(trackPath: string) {
   globalAudio.pause();
   globalAudio.src = trackPath;
   globalAudio.loop = trackPath !== AUDIO_TRACKS.TICK;
+  globalAudio.volume = trackPath === AUDIO_TRACKS.TICK ? 1 : 0.3;
   currentTrack = trackPath;
   globalAudio.load();
   
   if (wasPlaying) {
-    globalAudio.play().catch(() => {});
+    void playAudio();
   }
   globalAudio.muted = wasMuted;
   audioTrackListeners.forEach((listener) => listener());
@@ -102,6 +143,7 @@ export default function Countdown() {
     globalAudio.loop = true;
     globalAudio.volume = 0.3;
     globalAudio.preload = "auto";
+    publishAudioPlaybackStatus("blocked");
 
     const trimTickLoopGap = () => {
       if (
@@ -121,16 +163,13 @@ export default function Countdown() {
     // Try to play audio (handles both user interaction and autoplay)
     const tryPlayAudio = () => {
       if (!globalAudio || audioUnlocked) return;
-      
-      globalAudio.play()
-        .then(() => {
+
+      void playAudio().then((started) => {
+        if (started) {
           audioUnlocked = true;
-          // Remove all listeners once audio is playing
           removeListeners();
-        })
-        .catch(() => {
-          // Autoplay blocked, will retry on user interaction
-        });
+        }
+      });
     };
 
     const removeListeners = () => {
